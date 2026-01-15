@@ -1,6 +1,6 @@
-import 'dotenv/config';
-import crypto from 'crypto';
-import { AlertService } from '../services/alert.service';
+import "dotenv/config";
+import crypto from "crypto";
+import { AlertService } from "../services/alert.service";
 
 const alertService = new AlertService();
 
@@ -12,33 +12,35 @@ async function main() {
 
   try {
     switch (command) {
-      case 'list':
+      case "list":
         const alerts = await alertService.listAlerts();
-        console.log('Alerts:', JSON.stringify(alerts.data, null, 2));
+        console.log("Alerts:", JSON.stringify(alerts.data, null, 2));
         break;
 
-      case 'create':
+      case "create":
         if (!arg1) {
-          console.error('Usage: npm run manage-alerts create <tiktok_username>');
+          console.error(
+            "Usage: npm run manage-alerts create <tiktok_username>"
+          );
           process.exit(1);
         }
         const alert = await alertService.createAlert(arg1);
-        console.log('Alert created:', JSON.stringify(alert.data, null, 2));
+        console.log("Alert created:", JSON.stringify(alert.data, null, 2));
         break;
 
-      case 'delete':
+      case "delete":
         if (!arg1) {
-          console.error('Usage: npm run manage-alerts delete <alert_id>');
+          console.error("Usage: npm run manage-alerts delete <alert_id>");
           process.exit(1);
         }
         await alertService.deleteAlert(Number(arg1));
-        console.log('Alert deleted successfully');
+        console.log("Alert deleted successfully");
         break;
 
-      case 'create-webhook':
+      case "create-webhook":
         if (!arg1 || !arg2) {
           console.error(
-            'Usage: npm run manage-alerts create-webhook <alert_id> <webhook_url>'
+            "Usage: npm run manage-alerts create-webhook <alert_id> <webhook_url>"
           );
           process.exit(1);
         }
@@ -47,72 +49,75 @@ async function main() {
           arg2,
           arg3 ? JSON.parse(arg3) : undefined
         );
-        console.log('Webhook created:', JSON.stringify(webhook.data, null, 2));
+        console.log("Webhook created:", JSON.stringify(webhook.data, null, 2));
         break;
 
-      case 'list-webhooks':
+      case "list-webhooks":
         if (!arg1) {
-          console.error('Usage: npm run manage-alerts list-webhooks <alert_id>');
+          console.error(
+            "Usage: npm run manage-alerts list-webhooks <alert_id>"
+          );
           process.exit(1);
         }
         const webhooks = await alertService.listWebhooks(Number(arg1));
-        console.log('Webhooks:', JSON.stringify(webhooks.data, null, 2));
+        console.log("Webhooks:", JSON.stringify(webhooks.data, null, 2));
         break;
 
-      case 'delete-webhook':
+      case "delete-webhook":
         if (!arg1 || !arg2) {
           console.error(
-            'Usage: npm run manage-alerts delete-webhook <alert_id> <webhook_id>'
+            "Usage: npm run manage-alerts delete-webhook <alert_id> <webhook_id>"
           );
           process.exit(1);
         }
         await alertService.deleteWebhook(Number(arg1), Number(arg2));
-        console.log('Webhook deleted successfully');
+        console.log("Webhook deleted successfully");
         break;
 
-      case 'test':
-        const webhookUrl = arg1 || 'http://localhost:3000/webhooks/tiktok-live-alert';
+      case "test":
+        const webhookUrl =
+          arg1 || "http://localhost:3000/webhooks/tiktok-live-alert";
         const testPayload = {
-          event: 'live.started',
+          event: "live.started",
           creator: {
-            unique_id: 'test_user',
-            nickname: 'Test User',
+            unique_id: "test_user",
+            nickname: "Test User",
           },
           room: {
-            id: '12345',
-            title: 'Test Live Stream',
+            id: "12345",
+            title: "Test Live Stream",
           },
           timestamp: new Date().toISOString(),
         };
 
         const body = JSON.stringify(testPayload);
         const signature = crypto
-          .createHmac('sha256', process.env.EULER_WEBHOOK_SECRET!)
+          .createHmac("sha256", process.env.EULER_WEBHOOK_SECRET!)
           .update(body)
-          .digest('hex');
+          .digest("hex");
 
-        console.log('Testing webhook:', webhookUrl);
-        console.log('Payload:', testPayload);
-        console.log('Signature:', signature);
-        console.log('\nSending request...\n');
+        console.log("Testing webhook:", webhookUrl);
+        console.log("Payload:", testPayload);
+        console.log("Signature:", signature);
+        console.log("\nSending request...\n");
 
         const response = await fetch(webhookUrl, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'x-webhook-signature': signature,
+            "Content-Type": "application/json",
+            "x-webhook-signature": signature,
           },
           body,
         });
 
         const result = await response.text();
-        console.log('Response status:', response.status);
-        console.log('Response body:', result);
+        console.log("Response status:", response.status);
+        console.log("Response body:", result);
 
         if (response.ok) {
-          console.log('\n✓ Webhook test successful!');
+          console.log("\n✓ Webhook test successful!");
         } else {
-          console.log('\n✗ Webhook test failed!');
+          console.log("\n✗ Webhook test failed!");
         }
         break;
 
@@ -130,7 +135,7 @@ TikTok Alert Management Commands:
         `);
     }
   } catch (error: any) {
-    console.error('Error:', error.response?.data || error.message);
+    console.error("Error:", error.response?.data || error.message);
     process.exit(1);
   }
 }
